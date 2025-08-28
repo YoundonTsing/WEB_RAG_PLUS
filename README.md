@@ -18,50 +18,8 @@
 
 ## 代码设计架构
 
-```mermaid
-%% style definitions
-classDef newComponent fill:#1a4d2e,stroke:#2b8a3e,stroke-width:2px,color:#fff;
-classDef feedbackLoop fill:#5a189a,stroke:#9d4edd,stroke-width:2px,color:#fff;
+<img width="4112" height="6886" alt="deepseek_mermaid_20250828_ca2628" src="https://github.com/user-attachments/assets/040f24ef-d091-44c4-be7c-1089d306b6e4" />
 
-graph TD
-    subgraph "Ingestion Pipeline (数据注入流程)"
-        A[Input Documents] --> B(Chunking / 文档分块)
-        B --> C(Entity & Relation Extraction / 实体关系提取)
-        C --> D(Embedding / 向量化)
-        D --> E[Vector & Graph Storage]
-        A_LONG["Long Documents (长文档)"] --> B_LONG("Hierarchical Indexer (分层索引器)<br>LongRAG / RAPTOR")
-        B_LONG --> C_LONG["Multi-level Vector Storage (多层向量存储)"]
-        class A_LONG,B_LONG,C_LONG newComponent
-    end
-
-    subgraph "Query Pipeline (查询处理流程)"
-        H[User Query] --> H_MULTI("Multi-Query Processor (多查询处理器)<br>RAG-R1")
-        H_MULTI --> I{Query Mode Selection}
-        I -- KG/Naive --> J("Parallel Retrieval (并行检索)")
-        J --> J_FUSE("Result Fusion (结果融合)<br>Reciprocal Rank Fusion")
-        I -- Hierarchical --> J_HIER("Hierarchical Retrieval (分层检索)")
-        J_FUSE --> L(Reranking / 重排序)
-        J_HIER --> L
-        L --> L_COMP("Adaptive Context Compressor (自适应上下文压缩)<br>ACC-RAG")
-        L_COMP --> M(Context Assembly / 上下文组装)
-        M --> N(Prompt Engineering / 提示工程)
-        N --> O(LLM Generator / LLM生成器)
-        O --> P[Final Answer / 最终答案]
-        class H_MULTI,J,J_FUSE,J_HIER,L_COMP newComponent
-    end
-
-    subgraph "Continuous Learning Loop (持续学习回路)"
-        direction LR
-        P --> FB_COLLECT("Feedback Collector (反馈收集器)")
-        FB_COLLECT --> FINETUNE("Offline Model Finetuning (离线模型微调)")
-        FINETUNE -- "Updates models" --> EMBEDDING_MODEL["Embedding & Reranker Models"]
-        class FB_COLLECT,FINETUNE,EMBEDDING_MODEL feedbackLoop
-    end
-
-    E --> J
-    C_LONG --> J_HIER
-    EMBEDDING_MODEL --> J
-    EMBEDDING_MODEL --> L
 ```
 
 *核心设计原则*
