@@ -4,6 +4,18 @@
 > 原始框架来自香港大学开源项目 **[LightRAG](https://github.com/Mooler0410/light-rag)**。本仓库由 **@YoundonTsing** 在保留其核心思想的前提下，引入多项前沿 RAG 技术，对 *检索精度*、*响应效率*、*长文档处理* 与 *持续学习能力* 进行分阶段、非侵入式升级。
 
 ---
+## 部署地址
+http://117.72.180.197:5174/
+<img width="1902" height="894" alt="wechat_2025-08-28_145159_958" src="https://github.com/user-attachments/assets/55ed6782-b4ac-4893-a501-76ad0c934d08" />
+
+<img width="1916" height="868" alt="wechat_2025-08-28_145442_716" src="https://github.com/user-attachments/assets/9e9b367f-7485-4288-be13-904a25df2c9b" />
+
+<img width="1857" height="794" alt="wechat_2025-08-28_145803_083" src="https://github.com/user-attachments/assets/13984348-4644-4914-9451-ccc35548e32a" />
+
+**以上是效果展示**
+
+
+
 
 ## 目录速览
 1. [代码设计架构](#代码设计架构)
