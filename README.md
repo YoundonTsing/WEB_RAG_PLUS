@@ -384,6 +384,9 @@ async def batch_processing():
 2. **异构知识库融合**（结构化 + 非结构化 + 图谱）。
 3. **跨语言 / 多模态 RAG** 支持。
 4. **更精细的成本控制**（Token 预算 & KV 缓存策略）。
+   **架构图设计**：
+   <img width="4112" height="6886" alt="deepseek_mermaid_20250828_ca2628" src="https://github.com/user-attachments/assets/d9ff3a93-6928-4663-8927-71f79d1a33a9" />
+
 
 欢迎 PR / Issues 共同完善！
 
