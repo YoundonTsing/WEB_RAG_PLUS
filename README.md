@@ -3,6 +3,8 @@
 > **Simple, Fast & Extensible Retrieval-Augmented Generation Framework**  
 > 原始框架来自香港大学开源项目 **[LightRAG](https://github.com/Mooler0410/light-rag)**。本仓库由 **@YoundonTsing** 在保留其核心思想的前提下，引入多项前沿 RAG 技术，对 *检索精度*、*响应效率*、*长文档处理* 与 *持续学习能力* 进行分阶段、非侵入式升级。
 
+최신 RAG 기술에 대한 연구를 바탕으로, HKU--LightRAG 시스템은 검색 정확도, 응답 효율성, 장문서 처리 및 적응 학습 능력을 종합적으로 향상시키기 위해 실현 가능하고 비침습적이며 단계적인 최적화 솔루션을 갖추었습니다.   
+
 ---
 ## 部署地址
 http://117.72.180.197:5174/
