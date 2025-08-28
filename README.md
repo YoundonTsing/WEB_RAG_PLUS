@@ -7,14 +7,19 @@
 ## 部署地址
 http://117.72.180.197:5174/
 <img width="1902" height="894" alt="wechat_2025-08-28_145159_958" src="https://github.com/user-attachments/assets/55ed6782-b4ac-4893-a501-76ad0c934d08" />
+
 **知识库上传知识材料支持：doc/html/pdf/txt/markdown.etc**
 
 
+
 <img width="1916" height="868" alt="wechat_2025-08-28_145442_716" src="https://github.com/user-attachments/assets/9e9b367f-7485-4288-be13-904a25df2c9b" />
+
 **LLM-RAG 流式响应**
 
 
+
 <img width="1857" height="794" alt="wechat_2025-08-28_145803_083" src="https://github.com/user-attachments/assets/13984348-4644-4914-9451-ccc35548e32a" />
+
 **知识图谱实现**
 
 
