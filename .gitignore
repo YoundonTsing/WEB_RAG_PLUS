@@ -1,0 +1,219 @@
+# ================================
+# Python & Package Management
+# ================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+*.whl
+*.tar.gz
+*.tgz
+
+# ================================
+# Virtual Environments
+# ================================
+.venv/
+.env/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# ================================
+# Environment Variables & Config
+# ================================
+.env
+.env.*
+!.env.example
+*.ini
+config.ini
+!config.ini.example
+
+# ================================
+# IDE & Editor Files
+# ================================
+.idea/
+.vscode/
+.vscode/settings.json
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# ================================
+# Operating System Files
+# ================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ================================
+# Testing & Quality Tools
+# ================================
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+htmlcov/
+.tox/
+.nox/
+test_*
+test-reports/
+
+# ================================
+# Documentation & Build Tools
+# ================================
+docs/_build/
+.readthedocs.yml
+site/
+.mkdocs.yml
+
+# ================================
+# Logging & Monitoring
+# ================================
+*.log
+*.log.*
+*.logfire
+log/
+logs/
+.gradio/
+
+# ================================
+# Caching & Temporary Files
+# ================================
+.cache/
+.history/
+temp/
+tmp/
+*.tmp
+*.temp
+.jupyter/
+
+# ================================
+# ML & AI Specific
+# ================================
+# Model files
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.model
+*.pkl
+*.pickle
+*.joblib
+
+# Datasets
+datasets/
+data/
+*.csv
+*.json
+*.jsonl
+*.parquet
+*.arrow
+
+# Embeddings & Vectors
+embeddings/
+vectors/
+*.npy
+*.npz
+
+# ================================
+# LightRAG Specific Storage
+# ================================
+# Working directories
+dickens*/
+rag_storage/
+lightrag_storage/
+storage/
+
+# Input/Output directories
+inputs/
+outputs/
+output*/
+examples/input/
+examples/output/
+
+# Knowledge Graph storage
+neo4j_data/
+local_neo4jWorkDir/
+neo4jWorkDir/
+graph_storage/
+
+# Vector databases
+vector_storage/
+chromadb/
+*.db
+*.sqlite
+*.sqlite3
+
+# ================================
+# Development & Debug Files
+# ================================
+TODO.md
+NOTES.md
+ignore_this.txt
+*.ignore.*
+.debug/
+debug/
+
+# Project-specific files
+book.txt
+*.pdf
+!README*.pdf
+download_models_hf.py
+lightrag-dev/
+gui/
+webui_backup/
+
+# ================================
+# CI/CD & Deployment
+# ================================
+.github/workflows/*.yml.bak
+.dockerignore.bak
+docker-compose.override.yml
+k8s-secrets/
+.secrets/
+
+# ================================
+# Development Tools
+# ================================
+# Cline AI assistant
+memory-bank
+memory-bank/
+.clinerules
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Pre-commit
+.pre-commit-config.yaml.bak
+
+# ================================
+# Large Files (should use LFS)
+# ================================
+*.bin
+*.model
+*.gguf
+*.safetensors
+models/
+checkpoints/

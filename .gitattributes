@@ -1,0 +1,201 @@
+# ================================
+# Line Ending Normalization
+# ================================
+* text=auto eol=lf
+
+# ================================
+# Source Code Files
+# ================================
+*.py text
+*.pyx text
+*.pyi text
+*.pyw text
+*.js text
+*.jsx text
+*.ts text
+*.tsx text
+*.html text
+*.css text
+*.scss text
+*.sass text
+*.json text
+*.yaml text
+*.yml text
+*.toml text
+*.cfg text
+*.ini text
+*.conf text
+
+# ================================
+# Documentation Files
+# ================================
+*.md text
+*.rst text
+*.txt text
+*.rtf text
+LICENSE text
+CHANGELOG* text
+AUTHORS* text
+CONTRIBUTORS* text
+HISTORY* text
+README* text
+
+# ================================
+# Configuration Files
+# ================================
+*.gitignore text
+*.gitattributes text
+.editorconfig text
+.pre-commit-config.yaml text
+pyproject.toml text
+setup.py text
+setup.cfg text
+requirements*.txt text
+Pipfile text
+poetry.lock text
+Dockerfile text
+docker-compose*.yml text
+*.env.example text
+
+# ================================
+# Binary Files
+# ================================
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.webp binary
+*.bmp binary
+*.tiff binary
+
+# ================================
+# Archive & Compressed Files
+# ================================
+*.zip binary
+*.tar binary
+*.tar.gz binary
+*.tgz binary
+*.rar binary
+*.7z binary
+*.gz binary
+*.bz2 binary
+
+# ================================
+# ML Model & Data Files (Binary)
+# ================================
+*.bin binary
+*.model binary
+*.safetensors binary
+*.pt binary
+*.pth binary
+*.ckpt binary
+*.pkl binary
+*.pickle binary
+*.joblib binary
+*.h5 binary
+*.hdf5 binary
+*.npz binary
+*.npy binary
+*.parquet binary
+*.arrow binary
+*.gguf binary
+
+# ================================
+# Database Files
+# ================================
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+
+# ================================
+# Font Files
+# ================================
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+
+# ================================
+# Audio/Video Files
+# ================================
+*.mp3 binary
+*.mp4 binary
+*.avi binary
+*.wav binary
+*.flac binary
+
+# ================================
+# Office Documents
+# ================================
+*.pdf binary
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+
+# ================================
+# Git LFS (Large File Storage)
+# ================================
+# Model files
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.model filter=lfs diff=lfs merge=lfs -text
+*.safetensors filter=lfs diff=lfs merge=lfs -text
+*.pt filter=lfs diff=lfs merge=lfs -text
+*.pth filter=lfs diff=lfs merge=lfs -text
+*.ckpt filter=lfs diff=lfs merge=lfs -text
+*.gguf filter=lfs diff=lfs merge=lfs -text
+
+# Large datasets
+*.parquet filter=lfs diff=lfs merge=lfs -text
+*.arrow filter=lfs diff=lfs merge=lfs -text
+
+# ================================
+# Language Detection (linguist)
+# ================================
+# Mark generated files
+lightrag/api/webui/** linguist-generated
+docs/_build/** linguist-generated
+site/** linguist-generated
+htmlcov/** linguist-generated
+*.min.js linguist-generated
+*.min.css linguist-generated
+
+# Mark vendored code
+vendor/** linguist-vendored
+third_party/** linguist-vendored
+
+# Highlight main language
+*.py linguist-language=Python
+
+# Documentation as documentation
+*.md linguist-documentation
+*.rst linguist-documentation
+docs/** linguist-documentation
+
+# ================================
+# Export Ignore (for git archive)
+# ================================
+.gitignore export-ignore
+.gitattributes export-ignore
+.github/ export-ignore
+tests/ export-ignore
+test_* export-ignore
+*.test.py export-ignore
+conftest.py export-ignore
+tox.ini export-ignore
+.pre-commit-config.yaml export-ignore
+.dockerignore export-ignore
+Dockerfile.dev export-ignore
+docker-compose.dev.yml export-ignore
+
+# ================================
+# Merge Strategies
+# ================================
+# Always prefer our version for these files
+CHANGELOG.md merge=ours
+*.lock merge=union

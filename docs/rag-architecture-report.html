@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LightRAG RAG 架构分析报告</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; margin: 24px; line-height: 1.65; }
+    h1 { margin: 0 0 12px; font-size: 28px; }
+    h2 { margin-top: 28px; font-size: 20px; }
+    h3 { margin-top: 18px; font-size: 16px; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    pre { padding: 12px; border-radius: 8px; background: #0b102026; overflow:auto; }
+    kbd { border: 1px solid #e5e7eb; border-bottom-width: 2px; padding: 2px 6px; border-radius: 6px; background: #f9fafb; }
+    .muted { color: #6b7280; font-size: 12px; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #3730a3; font-size: 12px; margin-right: 6px; }
+    .box { border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; background: #ffffff; }
+    .grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left; }
+    th { background: #f5f7fa; }
+    ul { margin: 8px 0 12px 20px; }
+    .small { font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>LightRAG RAG 架构分析报告</h1>
+  <div class="muted">生成时间：<span id="ts"></span></div>
+  <script>document.getElementById('ts').textContent = new Date().toLocaleString();</script>
+
+  <h2>一、架构概览</h2>
+  <p>LightRAG 通过 <strong>知识图谱 + 向量检索</strong> 组合实现混合检索（<code>mix</code>），配合可选的 <strong>重排</strong> 与 <strong>统一 Token 预算</strong>，最终驱动 LLM 生成答案并支持 <strong>流式输出</strong>。路由层以 FastAPI 提供 <code>/query</code> 和 <code>/query/stream</code> 两个接口。</p>
+
+  <h2>二、核心代码位置</h2>
+  <ul>
+    <li><code>lightrag/api/routers/query_routes.py</code>：定义 <code>POST /query</code>、<code>POST /query/stream</code>，将请求转交给 <code>LightRAG.aquery</code> 并按需流式返回。</li>
+    <li><code>lightrag/lightrag.py</code>：<code>LightRAG.aquery(...)</code> 主调度，按 <code>mode</code> 分流至 <code>kg_query</code>/<code>naive_query</code> 或直连 LLM。</li>
+    <li><code>lightrag/operate.py</code>：RAG 核心流程（检索、合并、重排、上下文拼装、调用 LLM、缓存等）。</li>
+    <li><code>lightrag/rerank.py</code>：重排模型封装（Jina/Cohere 兼容，支持多模型/多模式）。</li>
+    <li><code>lightrag/base.py</code>：关键类型（如 <code>QueryParam</code>）与存储接口定义。</li>
+    <li><code>lightrag/constants.py</code>：默认参数（<code>top_k</code>、<code>chunk_top_k</code>、Token 预算等）。</li>
+    <li><code>lightrag/prompt.py</code>：提示词模板与语言配置。</li>
+  </ul>
+
+  <h2>三、端到端处理流程</h2>
+  <div class="box small">
+    <ol>
+      <li>客户端调用 <code>POST /query</code>（非流式）或 <code>POST /query/stream</code>（流式 NDJSON）。</li>
+      <li>路由 <code>query_routes.py</code> 解析 <code>QueryRequest</code> → <code>to_query_params(is_stream)</code> → 调用 <code>LightRAG.aquery(query, param)</code>。</li>
+      <li><code>aquery</code> 按 <code>mode</code> 分流：
+        <ul>
+          <li><code>local/global/hybrid/mix</code> → <code>operate.kg_query(...)</code>：</li>
+          <ul>
+            <li>向量检索：<code>entities_vdb</code> / <code>relationships_vdb</code> / <code>chunks_vdb</code> 召回实体、关系与文本片段；</li>
+            <li>图谱合并：<code>chunk_entity_relation_graph</code> 上合并/裁剪；</li>
+            <li>可选重排：<code>rerank.py</code>（Jina / Cohere 兼容或自定义）；</li>
+            <li>上下文拼装：统一 Token 预算（实体/关系/片段/系统提示），多段上下文合并；</li>
+            <li>生成：调用 LLM（支持缓存与流式）。</li>
+          </ul>
+          <li><code>naive</code> → 仅向量文本检索 + 生成；</li>
+          <li><code>bypass</code> → 直接 LLM 生成（绕过检索）。</li>
+        </ul>
+      </li>
+      <li>响应：返回字符串或异步生成器；路由层封装为 JSON 或 NDJSON（行式）返回。</li>
+    </ol>
+  </div>
+
+  <h2>四、关键参数与存储</h2>
+  <div class="grid">
+    <div class="box">
+      <h3>查询与预算</h3>
+      <table>
+        <tr><th>参数</th><th>说明</th></tr>
+        <tr><td><code>top_k</code> / <code>chunk_top_k</code></td><td>召回数量与片段上限</td></tr>
+        <tr><td><code>max_entity_tokens</code> / <code>max_relation_tokens</code></td><td>实体/关系上下文 Token 预算</td></tr>
+        <tr><td><code>max_total_tokens</code></td><td>全局上下文 Token 总预算</td></tr>
+        <tr><td><code>enable_rerank</code></td><td>是否启用重排（无配置会告警）</td></tr>
+        <tr><td><code>mode</code></td><td><code>local</code>/<code>global</code>/<code>hybrid</code>/<code>mix</code>/<code>naive</code>/<code>bypass</code></td></tr>
+      </table>
+    </div>
+    <div class="box">
+      <h3>存储与组件</h3>
+      <ul>
+        <li>向量库：<code>entities_vdb</code>、<code>relationships_vdb</code>、<code>chunks_vdb</code></li>
+        <li>图谱：<code>chunk_entity_relation_graph</code></li>
+        <li>KV 缓存：<code>llm_response_cache</code>（支持缓存命中）</li>
+        <li>提示词：<code>prompt.py</code>，多语言可配置</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>五、特点与领先性</h2>
+  <ul>
+    <li><span class="pill">混合检索</span> 图谱 + 向量联合，提供 <code>mix</code> 与多模式选择（local/global/hybrid）。</li>
+    <li><span class="pill">统一 Token 控制</span> 将实体/关系/片段与系统提示纳入统一预算，提升上下文利用率与稳定性。</li>
+    <li><span class="pill">可插拔重排</span> 兼容 Jina/Cohere 与自定义接口，支持多模型/多场景（<code>MultiRerankModel</code>）。</li>
+    <li><span class="pill">流式生成</span> <code>/query/stream</code> 使用 NDJSON，前端体验佳；并带缓存加速重复问答。</li>
+    <li><span class="pill">存储抽象清晰</span> Vector/Graph/KV 分层接口，易于替换底座（FAISS、PGVector、Neo4j 等）。</li>
+    <li><span class="pill">高并发友好</span> 异步管线 + 优先级任务（摘要/合并），便于进一步扩展。</li>
+  </ul>
+
+  <h2>六、当前发现</h2>
+  <ul>
+    <li>日志提示：<code>Rerank is enabled but no rerank model is configured</code>（已启用重排但未配置模型），建议尽快补齐。</li>
+    <li>前端目前从答案尾部解析溯源，建议后端返回结构化 <code>citations</code> 字段，前端直接渲染，提升稳定性。</li>
+  </ul>
+
+  <h2>七、可优化方向</h2>
+  <h3>1) 检索</h3>
+  <ul>
+    <li>融合检索（向量 + 稀疏 BM25/ColBERT-lite），改善长尾与术语匹配；
+    <li>自适应 <code>top_k/chunk_top_k</code>：基于查询长度、召回分布与置信度动态调整。</li>
+  </ul>
+  <h3>2) 重排</h3>
+  <ul>
+    <li>落地本地重排器（如 <code>bge-reranker</code>）以降低外部 API 依赖；</li>
+    <li>引入 <code>rerank_score</code> 归一化与阈值剪枝策略，外置到配置。</li>
+  </ul>
+  <h3>3) 上下文与 Prompt</h3>
+  <ul>
+    <li>片段多样性约束：避免相似片段占满配额；</li>
+    <li>结构化溯源：生成前记录片段/文档 ID，返回 <code>citations</code>（title/url/snippet/id），前端直接展示。</li>
+  </ul>
+  <h3>4) LLM 与缓存</h3>
+  <ul>
+    <li>细化缓存键：纳入检索配置摘要与模板版本，保证命中准确；</li>
+    <li>开放 <code>only_need_context</code>/<code>only_need_prompt</code> 为前端可选项，便于调试与拼装回放。</li>
+  </ul>
+  <h3>5) 监控与日志</h3>
+  <ul>
+    <li>分步用时埋点：检索/重排/拼装/LLM，输出到日志与指标；</li>
+    <li>上下文截断统计与原因归因（超预算、低分片段等）。</li>
+  </ul>
+
+  <h2>八、落地改造建议（优先级）</h2>
+  <ol>
+    <li>在 <code>operate.kg_query(...)</code> 增加 <strong>结构化溯源</strong> 字段（<code>citations</code>）与 <strong>分步用时</strong>；路由将 dict 以 JSON 返回（流式可先传正文，末尾补 <code>__meta</code>）。</li>
+    <li>配置可用的 <strong>重排模型</strong>（或本地重排器），并加阈值/数量策略。</li>
+    <li>引入 <strong>融合检索</strong>（BM25/稀疏倒排）与自适应 <code>top_k</code>。</li>
+    <li>细化 <strong>缓存键</strong> 与 <strong>Prompt 版本</strong> 标识，避免陈旧命中。</li>
+    <li>建立 <strong>性能与质量监控</strong> 仪表盘（QPS、P99、上下文利用率、重排收益率）。</li>
+  </ol>
+
+  <h2>九、接口示例</h2>
+  <h3>/query</h3>
+  <pre>{
+  "query": "什么是混合检索？",
+  "mode": "mix",
+  "enable_rerank": true,
+  "chunk_top_k": 15,
+  "conversation_history": [{"role":"user","content":"..."}]
+}</pre>
+  <h3>/query/stream（NDJSON）</h3>
+  <pre>{"response":"第一段..."}\n
+{"response":"第二段..."}\n
+{"response":"...（可在最后一行附带 __meta 与 citations）"}\n</pre>
+
+  <h2>附：排障提示</h2>
+  <ul>
+    <li>若见 <code>Rerank is enabled...</code> 告警，请配置 <code>JINA_API_KEY</code>/<code>COHERE_API_KEY</code> 或关闭 <code>enable_rerank</code>。</li>
+    <li>查看查询日志：<code>journalctl -f _PID=&lt;pid-of-lightrag-server&gt; | cat</code> 或 <code>/root/LightRAG/lightrag.log</code>。</li>
+  </ul>
+</body>
+</html> 
